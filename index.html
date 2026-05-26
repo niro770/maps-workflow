@@ -1683,9 +1683,9 @@ $('keyBtn').addEventListener('click', () => {
 function refreshKeyStatus() {
   const k = getApiKey();
   if (k) {
-    $('keyStatus').innerHTML = `<span style="color:var(--green)">●</span> saved (${k.slice(0, 8)}…${k.slice(-4)})`;
+    $('keyStatus').innerHTML = `<span style="color:var(--good)">●</span> saved (${k.slice(0, 10)}…${k.slice(-4)})`;
   } else {
-    $('keyStatus').innerHTML = `<span style="color:var(--mid)">○</span> not set — using artifact mode`;
+    $('keyStatus').innerHTML = `<span style="color:var(--warn)">●</span> no key set — enrichment will fail`;
   }
 }
 
@@ -1698,7 +1698,7 @@ $('keySave').addEventListener('click', () => {
   if (v) localStorage.setItem('google-places-api-key', v);
   else localStorage.removeItem('google-places-api-key');
   refreshKeyStatus();
-  logLine('--', 'info', v ? 'Google Places API key saved.' : 'Key removed.');
+  logLine('--', 'info', v ? 'Google Places API key saved to localStorage.' : 'Key removed.');
 });
 
 $('keyClear').addEventListener('click', () => {
@@ -1709,10 +1709,10 @@ $('keyClear').addEventListener('click', () => {
 });
 
 $('keyTest').addEventListener('click', async () => {
-  $('keyStatus').innerHTML = `<span style="color:var(--orange)">●</span> testing…`;
+  $('keyStatus').innerHTML = `<span style="color:var(--accent)">●</span> testing…`;
   try {
     const r = await testEnrichConnection();
-    $('keyStatus').innerHTML = `<span style="color:var(--green)">●</span> OK — Apple Park: ${r.rating || '?'}★ (${r.review_count || '?'} reviews)`;
+    $('keyStatus').innerHTML = `<span style="color:var(--good)">●</span> OK — Apple Park: ${r.rating || '?'}★ (${r.review_count || '?'} reviews)`;
     logLine('--', 'ok', `Test passed: phone=${r.phone||'∅'} rating=${r.rating||'∅'} reviews=${r.review_count||'∅'}`);
   } catch (e) {
     $('keyStatus').innerHTML = `<span style="color:var(--bad)">●</span> FAILED`;
@@ -1720,8 +1720,12 @@ $('keyTest').addEventListener('click', async () => {
   }
 });
 
-// Initial status on load
+// Initial: populate input from localStorage and show status
+$('apiKey').value = getApiKey();
 refreshKeyStatus();
+if (getApiKey()) {
+  logLine('--', 'info', 'Google Places API key loaded from localStorage.');
+}
 
 // =========================================================================
 // MAIN WORKFLOW
