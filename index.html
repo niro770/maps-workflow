@@ -1038,6 +1038,7 @@ URLs can be one per line, all in one paragraph, mixed with other text — the to
         <div class="meta" id="rmeta"></div>
       </div>
       <div class="actions">
+        <button id="retryErrors" title="Re-attempt only the URLs that failed">↻ retry failed</button>
         <button id="copyTsv">copy tsv</button>
         <button id="downloadCsv" class="primary">download csv</button>
       </div>
@@ -1200,36 +1201,81 @@ const PROXIES = [
   { name: 'codetabs',        build: u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
   { name: 'allorigins-raw',  build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
   { name: 'corsproxy.io',    build: u => `https://corsproxy.io/?${encodeURIComponent(u)}` },
+  { name: 'cors-anywhere-hf', build: u => `https://cors-anywhere.herokuapp.com/${u}` },
+  { name: 'thingproxy',      build: u => `https://thingproxy.freeboard.io/fetch/${u}` },
 ];
-let proxyOrder = [0, 1, 2];
+// Track which proxies are temporarily rate-limited (cooldown timestamps)
+const proxyCooldown = {};  // name → epoch ms when usable again
+
+function isProxyHot(name) {
+  return proxyCooldown[name] && Date.now() < proxyCooldown[name];
+}
+function coolProxy(name, secs) {
+  proxyCooldown[name] = Date.now() + (secs * 1000);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function resolveShortUrl(shortUrl) {
   let lastErr = null;
-  for (let attempt = 0; attempt < proxyOrder.length; attempt++) {
-    const idx = proxyOrder[attempt];
-    const proxy = PROXIES[idx];
-    try {
-      const controller = new AbortController();
-      const tid = setTimeout(() => controller.abort(), 18000);
-      const resp = await fetch(proxy.build(shortUrl), {
-        signal: controller.signal,
-        headers: { 'Accept': 'text/html,*/*' }
-      });
-      clearTimeout(tid);
-      if (!resp.ok) throw new Error(`${proxy.name} HTTP ${resp.status}`);
-      const html = await resp.text();
-      const finalUrl = extractMapsUrlFromBody(html);
-      if (!finalUrl) throw new Error(`${proxy.name}: no redirect found`);
-      if (attempt > 0) proxyOrder = [idx, ...proxyOrder.filter(i => i !== idx)];
-      return { finalUrl, html };
-    } catch (e) {
-      lastErr = e;
-      if (attempt === 0 && proxyOrder.length > 1) {
-        proxyOrder = [...proxyOrder.slice(1), proxyOrder[0]];
+  const ROUNDS = 2;   // try the full proxy list up to 2x with backoff
+
+  for (let round = 0; round < ROUNDS; round++) {
+    for (let i = 0; i < PROXIES.length; i++) {
+      const proxy = PROXIES[i];
+      // Skip cooling-off proxies in round 0
+      if (round === 0 && isProxyHot(proxy.name)) continue;
+
+      const timeoutMs = 25000;
+      let controller, tid;
+      try {
+        controller = new AbortController();
+        tid = setTimeout(() => controller.abort(), timeoutMs);
+        const resp = await fetch(proxy.build(shortUrl), {
+          signal: controller.signal,
+          headers: { 'Accept': 'text/html,*/*' }
+        });
+        clearTimeout(tid);
+
+        if (resp.status === 429) {
+          coolProxy(proxy.name, 60);  // 60s cooldown on rate-limit
+          lastErr = new Error(`${proxy.name} 429 rate-limited`);
+          continue;
+        }
+        if (resp.status === 408 || resp.status >= 500) {
+          coolProxy(proxy.name, 20);  // short cooldown on server errors
+          lastErr = new Error(`${proxy.name} ${resp.status}`);
+          continue;
+        }
+        if (!resp.ok) {
+          lastErr = new Error(`${proxy.name} HTTP ${resp.status}`);
+          continue;
+        }
+
+        const html = await resp.text();
+        const finalUrl = extractMapsUrlFromBody(html);
+        if (!finalUrl) {
+          lastErr = new Error(`${proxy.name}: no redirect in response`);
+          continue;
+        }
+        return { finalUrl, html };
+
+      } catch (e) {
+        if (tid) clearTimeout(tid);
+        // AbortError = timeout
+        if (e.name === 'AbortError') {
+          coolProxy(proxy.name, 15);
+          lastErr = new Error(`${proxy.name} timeout (${timeoutMs/1000}s)`);
+        } else {
+          lastErr = new Error(`${proxy.name}: ${e.message || 'network error'}`);
+        }
       }
     }
+    // Wait between rounds (gives rate-limited proxies time to cool down)
+    if (round < ROUNDS - 1) await sleep(2000 + round * 2000);
   }
-  throw new Error('all proxies failed (' + (lastErr?.message || 'unknown') + ')');
+
+  throw new Error('all proxies failed — ' + (lastErr?.message || 'unknown'));
 }
 
 // =========================================================================
@@ -1358,8 +1404,6 @@ async function geocodeOne(row, slot) {
   logLine(slot, 'warn', `no geocode match for: ${row.name}`);
   return false;
 }
-
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // =========================================================================
 // ENRICH via Google Places API (Text Search New)
@@ -1658,6 +1702,45 @@ $('copyTsv').addEventListener('click', async () => {
   }
 });
 
+// Retry just the rows that errored out (proxy failures usually)
+$('retryErrors').addEventListener('click', async () => {
+  const failed = results.map((r, i) => ({ r, i })).filter(x => x.r.error && !x.r.name);
+  if (!failed.length) {
+    logLine('--', 'info', 'No failed rows to retry.');
+    return;
+  }
+  $('retryErrors').disabled = true;
+  $('retryErrors').textContent = '↻ retrying…';
+  logHtml('--', 'work', `<em>Retrying ${failed.length} failed URL${failed.length===1?'':'s'} with cooled-down proxies…</em>`);
+
+  // Reset proxy cooldowns to give them a fresh shot
+  for (const k of Object.keys(proxyCooldown)) delete proxyCooldown[k];
+
+  let recovered = 0;
+  for (const { r, i } of failed) {
+    try {
+      const { finalUrl } = await resolveShortUrl(r.short_url);
+      const parsed = parseFinalUrl(finalUrl);
+      Object.assign(results[i], parsed, { final_url: finalUrl, error: '' });
+      counters.ok++;
+      counters.err--;
+      recovered++;
+      const coordTag = parsed.latitude ? `${parsed.latitude},${parsed.longitude}` : 'no-coords';
+      logLine(i + 1, 'ok', `recovered: ${parsed.name || '(no name)'} · ${coordTag}`);
+    } catch (e) {
+      results[i].error = e.message;
+      logLine(i + 1, 'err', `still failing: ${e.message}`);
+    }
+    await sleep(800);  // gentle pace on retries
+    updateStats();
+    renderResults();
+  }
+
+  logHtml('--', 'work', `<em>Retry complete: ${recovered}/${failed.length} recovered.</em>`);
+  $('retryErrors').disabled = false;
+  $('retryErrors').textContent = '↻ retry failed';
+});
+
 $('clear').addEventListener('click', () => {
   $('urls').value = '';
   $('urlCount').textContent = '0 URLs';
@@ -1767,7 +1850,9 @@ $('run').addEventListener('click', async () => {
 
   let nextIdx = 0;
   const CONC = 2;
-  async function worker() {
+  async function worker(workerId) {
+    // Stagger workers so they don't both start their first request at once
+    if (workerId > 0) await sleep(400 * workerId);
     while (nextIdx < urls.length) {
       const i = nextIdx++;
       const url = urls[i];
@@ -1787,9 +1872,11 @@ $('run').addEventListener('click', async () => {
       counters.proc++;
       $('bar').style.width = ((counters.proc / urls.length) * 60) + '%';
       updateStats();
+      // Small delay between consecutive requests in the same worker
+      await sleep(250);
     }
   }
-  await Promise.all(Array.from({length: Math.min(CONC, urls.length)}, worker));
+  await Promise.all(Array.from({length: Math.min(CONC, urls.length)}, (_, i) => worker(i)));
 
   setStep(2, 'done');
   setStep(3, 'done');  // parsing happened inline during resolve
