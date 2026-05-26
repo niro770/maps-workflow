@@ -626,6 +626,263 @@
     color: var(--mid);
   }
 
+  /* ============ SELECTION BAR ============ */
+  .selection-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 22px;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border-bottom: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--mid);
+    font-family: var(--mono);
+  }
+  .selection-bar .check { font-family: var(--body); font-size: 12.5px; color: var(--ink-dim); }
+  .selection-bar #selCount { color: var(--ink-dim); }
+
+  /* ============ DROPDOWN MENU ============ */
+  .menu-wrap { position: relative; }
+  .menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 240px;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--rule-2);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.04);
+    padding: 6px;
+    display: none;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+  .menu.open { display: block; animation: menuIn 0.14s ease-out; }
+  @keyframes menuIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .menu-divider {
+    height: 1px;
+    background: var(--rule);
+    margin: 6px 4px;
+  }
+  .menu-label {
+    font-family: var(--display);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding: 8px 10px 4px;
+  }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-family: var(--body);
+    font-size: 13px;
+    color: var(--ink-dim);
+    cursor: pointer;
+    transition: background 0.1s;
+    gap: 8px;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    letter-spacing: -0.005em;
+  }
+  .menu-item:hover { background: var(--panel-3); color: var(--ink); }
+  .menu-item .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--mid);
+    background: var(--panel);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--rule-2);
+  }
+  .menu-item.new {
+    color: var(--accent-bright);
+    border-top: 1px solid var(--rule);
+    margin-top: 4px;
+    padding-top: 10px;
+  }
+  .menu-item.new:hover { background: var(--accent-soft); }
+
+  /* ============ CHECKBOXES IN TABLE ============ */
+  th.cb, td.cb {
+    width: 32px;
+    padding-left: 14px !important;
+    padding-right: 6px !important;
+  }
+  .row-cb {
+    accent-color: var(--accent);
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+  }
+  tbody tr.selected td {
+    background: var(--accent-soft) !important;
+  }
+  tbody tr.selected td.nm {
+    color: var(--accent-bright);
+  }
+
+  /* ============ LIST TAGS IN ROW ============ */
+  td.tags {
+    max-width: 140px;
+  }
+  .list-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 500;
+    padding: 2px 6px 2px 7px;
+    background: rgba(91, 158, 255, 0.08);
+    color: var(--accent-bright);
+    border: 1px solid rgba(91, 158, 255, 0.25);
+    border-radius: 3px;
+    margin-right: 3px;
+    margin-bottom: 3px;
+  }
+  .list-tag .x {
+    color: var(--mid);
+    cursor: pointer;
+    margin-left: 2px;
+    font-size: 11px;
+    line-height: 1;
+  }
+  .list-tag .x:hover { color: var(--bad); }
+
+  /* ============ LIST CARDS ============ */
+  .list-card {
+    border-bottom: 1px solid var(--rule);
+  }
+  .list-card:last-child { border-bottom: none; }
+  .list-card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 22px;
+    cursor: pointer;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .list-card-head:hover { background: rgba(91, 158, 255, 0.04); }
+  .list-card-head .caret {
+    color: var(--mid);
+    font-size: 10px;
+    width: 12px;
+    transition: transform 0.15s;
+  }
+  .list-card.open .list-card-head .caret { transform: rotate(90deg); }
+  .list-card-head .name {
+    font-family: var(--display);
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 14px;
+    flex: 1;
+    letter-spacing: -0.01em;
+  }
+  .list-card-head .count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent-bright);
+    text-shadow: 0 0 8px var(--accent-glow);
+  }
+  .list-card-head .actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .list-card-head:hover .actions { opacity: 1; }
+  .list-card-head .actions button {
+    padding: 5px 10px;
+    font-size: 10.5px;
+    border-radius: 4px;
+  }
+  .list-card-body {
+    display: none;
+    background: var(--bg);
+    border-top: 1px solid var(--rule);
+    overflow-x: auto;
+  }
+  .list-card.open .list-card-body { display: block; }
+  .list-card-body table { min-width: 900px; }
+  .list-card-body table tbody td { padding: 8px 12px; }
+  .list-card-body .empty-list {
+    padding: 24px;
+    text-align: center;
+    color: var(--mid);
+    font-family: var(--body);
+    font-style: italic;
+    font-size: 12.5px;
+  }
+
+  /* ============ MODAL (prompt) ============ */
+  .modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-bg.open { display: flex; animation: menuIn 0.18s ease-out; }
+  .modal {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--rule-2);
+    border-radius: 10px;
+    padding: 24px 26px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal h3 {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+  .modal p {
+    font-family: var(--body);
+    font-size: 13px;
+    color: var(--mid);
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+  .modal input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--rule-2);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    outline: none;
+  }
+  .modal input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .modal .actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
   /* ============ FOOTER ============ */
   footer {
     margin-top: 48px;
@@ -785,16 +1042,32 @@ URLs can be one per line, all in one paragraph, mixed with other text — the to
         <button id="downloadCsv" class="primary">download csv</button>
       </div>
     </div>
+
+    <div class="selection-bar" id="selBar">
+      <label class="check">
+        <input type="checkbox" id="selAll">
+        <span id="selCount">0 selected</span>
+      </label>
+      <span class="spacer"></span>
+      <div class="menu-wrap">
+        <button id="saveBtn">+ save to list ▾</button>
+        <div class="menu" id="saveMenu"></div>
+      </div>
+      <button id="delBtn" class="danger">delete selected</button>
+    </div>
+
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
+            <th class="cb"><input type="checkbox" id="selAllHead" title="Select all"></th>
             <th>#</th>
             <th>Name</th>
             <th>Address</th>
             <th>Phone</th>
             <th>Rating</th>
             <th>Reviews</th>
+            <th>Lists</th>
             <th>Latitude</th>
             <th>Longitude</th>
             <th>Place ID (FID)</th>
@@ -806,15 +1079,42 @@ URLs can be one per line, all in one paragraph, mixed with other text — the to
     </div>
   </div>
 
+  <!-- ============ SAVED LISTS SECTION ============ -->
+  <div class="results-wrap" id="listsWrap" style="display:none; margin-top: 20px;">
+    <div class="results-head">
+      <div>
+        <div class="title">Saved <em id="listsCount">0 lists</em></div>
+        <div class="meta">Lists persist across sessions. Click a list to expand it.</div>
+      </div>
+      <div class="actions">
+        <button id="newListBtn">+ new list</button>
+      </div>
+    </div>
+    <div id="listsContainer"></div>
+  </div>
+
   <div class="empty results-wrap" id="emptyState">
     <div class="glyph">∅</div>
     <div class="txt">No results yet — paste URLs and run the workflow.</div>
   </div>
 
   <footer>
-    <span>workflow: extract → resolve → parse → fix corporate-suffix commas → geocode missing → CSV</span>
-    <span>Anthropic-brand v1 <span class="pill-tip">cream paper</span></span>
+    <span>workflow: extract → resolve → parse → fix LLC commas → geocode → Google Places enrich → save to lists</span>
+    <span>Modern Glossy Black <span class="pill-tip">v2</span></span>
   </footer>
+</div>
+
+<!-- Modal for prompts -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">New list</h3>
+    <p id="modalDesc">Give this list a name.</p>
+    <input type="text" id="modalInput" placeholder="e.g. Top performers, Texas locations…" maxlength="60">
+    <div class="actions">
+      <button id="modalCancel">cancel</button>
+      <button id="modalOk" class="primary">save</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -827,6 +1127,28 @@ const ABBREV_SUFFIXES = ['LLC','Inc','Inc.','Corp','Corp.','Co','Co.','Ltd','PLL
 
 let results = [];
 let counters = { proc: 0, ok: 0, err: 0, geo: 0, enr: 0, dup: 0 };
+
+// Selection (Set of result indices)
+let selected = new Set();
+
+// Saved lists — { id, name, places: [...] }
+// Each saved place is a snapshot of the result row at save time.
+// `lists[]` is persisted to localStorage under 'maps-workflow-lists'.
+let lists = [];
+
+function uid() { return 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function loadLists() {
+  try {
+    const raw = localStorage.getItem('maps-workflow-lists');
+    lists = raw ? JSON.parse(raw) : [];
+  } catch (e) { lists = []; }
+}
+function saveLists() {
+  localStorage.setItem('maps-workflow-lists', JSON.stringify(lists));
+  renderLists();
+}
+loadLists();
 
 // =========================================================================
 // STEP TRACKING
@@ -1211,7 +1533,7 @@ function renderResults() {
   tbody.innerHTML = '';
   if (!results.length) {
     $('resultsWrap').style.display = 'none';
-    $('emptyState').style.display = 'block';
+    $('emptyState').style.display = lists.length ? 'none' : 'block';
     return;
   }
   $('resultsWrap').style.display = 'block';
@@ -1219,31 +1541,77 @@ function renderResults() {
   results.forEach((r, i) => {
     const tr = document.createElement('tr');
     if (r.is_duplicate) tr.classList.add('dup');
+    if (selected.has(i)) tr.classList.add('selected');
     const addrClass = 'addr' + (r.geocoded ? ' geo' : '');
     const phoneCell = r.phone
-      ? `<a href="tel:${escapeHtml(r.phone)}" style="color:var(--green);text-decoration:none">${escapeHtml(r.phone)}</a>`
+      ? `<a href="tel:${escapeHtml(r.phone)}" style="color:var(--good);text-decoration:none">${escapeHtml(r.phone)}</a>`
       : '';
     const ratingCell = r.rating ? `<b>${escapeHtml(r.rating)}</b><span class="star">★</span>` : '';
+
+    // Find which lists this place is in (by place_id or short_url)
+    const inLists = lists.filter(L => L.places.some(p =>
+      (r.place_id && p.place_id === r.place_id) ||
+      (!r.place_id && p.short_url === r.short_url)
+    ));
+    const tagsHtml = inLists.map(L =>
+      `<span class="list-tag">${escapeHtml(L.name)}<span class="x" data-list="${L.id}" data-row="${i}" title="Remove from list">×</span></span>`
+    ).join('');
+
     tr.innerHTML = `
+      <td class="cb"><input type="checkbox" class="row-cb" data-row="${i}" ${selected.has(i)?'checked':''}></td>
       <td class="n">${i+1}</td>
       <td class="nm">${escapeHtml(r.name) || '<span class="err">—</span>'}</td>
       <td class="${addrClass}">${escapeHtml(r.address)}</td>
       <td class="phone">${phoneCell}</td>
       <td class="rating">${ratingCell}</td>
       <td class="rev">${escapeHtml(r.review_count)}</td>
+      <td class="tags">${tagsHtml}</td>
       <td class="coord">${escapeHtml(r.latitude)}</td>
       <td class="coord">${escapeHtml(r.longitude)}</td>
       <td class="pid">${escapeHtml(r.place_id)}</td>
-      <td class="coord"><a href="${escapeHtml(r.short_url)}" target="_blank" style="color:var(--blue);text-decoration:none">${escapeHtml(r.short_url.replace('https://maps.app.goo.gl/',''))}</a></td>
+      <td class="coord"><a href="${escapeHtml(r.short_url)}" target="_blank" style="color:var(--accent-bright);text-decoration:none">${escapeHtml(r.short_url.replace('https://maps.app.goo.gl/',''))}</a></td>
     `;
     tbody.appendChild(tr);
   });
+
+  // Wire up row checkboxes
+  tbody.querySelectorAll('.row-cb').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.row);
+      if (e.target.checked) selected.add(idx);
+      else selected.delete(idx);
+      renderResults();
+    });
+  });
+
+  // Wire up tag removal (×)
+  tbody.querySelectorAll('.list-tag .x').forEach(x => {
+    x.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const listId = x.dataset.list;
+      const rowIdx = parseInt(x.dataset.row);
+      const r = results[rowIdx];
+      const list = lists.find(L => L.id === listId);
+      if (!list) return;
+      list.places = list.places.filter(p =>
+        !((r.place_id && p.place_id === r.place_id) ||
+          (!r.place_id && p.short_url === r.short_url))
+      );
+      saveLists();
+      renderResults();
+    });
+  });
+
   $('rcount').textContent = `${results.length} place${results.length===1?'':'s'}`;
   const fmtA = results.filter(r => r.format === '/place/').length;
   const fmtB = results.filter(r => r.format === '?q=').length;
   const llcFixed = results.filter(r => r.llc_fixed).length;
   const enriched = results.filter(r => r.phone || r.rating || r.review_count).length;
-  $('rmeta').innerHTML = `<span style="color:var(--orange)">${fmtA}</span> /place/ · <span style="color:var(--blue)">${fmtB}</span> ?q= · ${llcFixed} LLC fixes · ${counters.geo} geocoded · ${enriched} enriched · ${counters.dup} dupes`;
+  $('rmeta').innerHTML = `<span style="color:var(--accent-bright)">${fmtA}</span> /place/ · <span style="color:var(--violet)">${fmtB}</span> ?q= · ${llcFixed} LLC fixes · ${counters.geo} geocoded · ${enriched} enriched · ${counters.dup} dupes`;
+
+  // Update selection bar
+  $('selCount').textContent = `${selected.size} selected`;
+  $('selAllHead').checked = selected.size === results.length && results.length > 0;
 }
 
 // =========================================================================
@@ -1545,8 +1913,291 @@ $('run').addEventListener('click', async () => {
   renderResults();
 });
 
+// =========================================================================
+// SAVED LISTS UI
+// =========================================================================
+function renderLists() {
+  const wrap = $('listsWrap');
+  const container = $('listsContainer');
+  if (!lists.length) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  $('listsCount').textContent = `${lists.length} list${lists.length===1?'':'s'}`;
+  container.innerHTML = '';
+
+  lists.forEach(L => {
+    const card = document.createElement('div');
+    card.className = 'list-card';
+    card.dataset.id = L.id;
+
+    const rowsHtml = L.places.length ? `
+      <table>
+        <thead><tr>
+          <th>#</th><th>Name</th><th>Address</th><th>Phone</th>
+          <th>Rating</th><th>Reviews</th><th>Source URL</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${L.places.map((p, i) => `
+            <tr>
+              <td class="n">${i+1}</td>
+              <td class="nm">${escapeHtml(p.name)}</td>
+              <td class="addr">${escapeHtml(p.address)}</td>
+              <td class="phone">${p.phone ? `<a href="tel:${escapeHtml(p.phone)}">${escapeHtml(p.phone)}</a>` : ''}</td>
+              <td class="rating">${p.rating ? `<b>${escapeHtml(p.rating)}</b><span class="star">★</span>` : ''}</td>
+              <td class="rev">${escapeHtml(p.review_count || '')}</td>
+              <td class="coord">${p.short_url ? `<a href="${escapeHtml(p.short_url)}" target="_blank" style="color:var(--accent-bright);text-decoration:none">${escapeHtml(p.short_url.replace('https://maps.app.goo.gl/',''))}</a>` : ''}</td>
+              <td class="coord"><button class="rm-from-list" data-list="${L.id}" data-idx="${i}" style="padding:3px 8px;font-size:10px">remove</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : `<div class="empty-list">List is empty.</div>`;
+
+    card.innerHTML = `
+      <div class="list-card-head">
+        <span class="caret">▸</span>
+        <span class="name">${escapeHtml(L.name)}</span>
+        <span class="count">${L.places.length} place${L.places.length===1?'':'s'}</span>
+        <div class="actions">
+          <button class="list-export" data-id="${L.id}">export csv</button>
+          <button class="list-rename" data-id="${L.id}">rename</button>
+          <button class="list-delete danger" data-id="${L.id}">delete</button>
+        </div>
+      </div>
+      <div class="list-card-body">${rowsHtml}</div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Wire up card interactions
+  container.querySelectorAll('.list-card-head').forEach(head => {
+    head.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;  // ignore clicks on action buttons
+      head.parentElement.classList.toggle('open');
+    });
+  });
+  container.querySelectorAll('.list-export').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportListCsv(b.dataset.id);
+    });
+  });
+  container.querySelectorAll('.list-rename').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const L = lists.find(x => x.id === b.dataset.id);
+      if (!L) return;
+      showModal('Rename list', 'New name:', L.name, (name) => {
+        if (!name) return;
+        L.name = name;
+        saveLists();
+        renderResults();
+      });
+    });
+  });
+  container.querySelectorAll('.list-delete').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const L = lists.find(x => x.id === b.dataset.id);
+      if (!L) return;
+      if (!confirm(`Delete list "${L.name}"? Rows in your current results stay; only the saved list is removed.`)) return;
+      lists = lists.filter(x => x.id !== b.dataset.id);
+      saveLists();
+      renderResults();
+    });
+  });
+  container.querySelectorAll('.rm-from-list').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const L = lists.find(x => x.id === b.dataset.list);
+      if (!L) return;
+      L.places.splice(parseInt(b.dataset.idx), 1);
+      saveLists();
+      renderResults();
+    });
+  });
+}
+
+// Snapshot a result row into a place object stored in a list
+function snapshotPlace(r) {
+  return {
+    place_id: r.place_id || '',
+    short_url: r.short_url || '',
+    name: r.name || '',
+    address: r.address || '',
+    phone: r.phone || '',
+    rating: r.rating || '',
+    review_count: r.review_count || '',
+    latitude: r.latitude || '',
+    longitude: r.longitude || '',
+  };
+}
+
+function addToList(listId, rowIndices) {
+  const L = lists.find(x => x.id === listId);
+  if (!L) return 0;
+  let added = 0;
+  rowIndices.forEach(i => {
+    const r = results[i];
+    if (!r) return;
+    const exists = L.places.some(p =>
+      (r.place_id && p.place_id === r.place_id) ||
+      (!r.place_id && p.short_url === r.short_url)
+    );
+    if (!exists) {
+      L.places.push(snapshotPlace(r));
+      added++;
+    }
+  });
+  saveLists();
+  renderResults();
+  return added;
+}
+
+function exportListCsv(listId) {
+  const L = lists.find(x => x.id === listId);
+  if (!L) return;
+  const cols = ['#','Name','Address','Phone','Rating','Review Count','Latitude','Longitude','Place ID (FID)','Google Maps URL'];
+  const rows = L.places.map((p, i) => [
+    i+1, p.name, p.address, p.phone, p.rating, p.review_count, p.latitude, p.longitude, p.place_id, p.short_url
+  ]);
+  const csv = [cols, ...rows].map(row => row.map(c => csvEscape(c, ',')).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safe = L.name.replace(/[^\w\-]+/g, '_').toLowerCase();
+  a.href = url;
+  a.download = `${safe}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// =========================================================================
+// MODAL
+// =========================================================================
+let modalCallback = null;
+function showModal(title, desc, initialValue, onSubmit) {
+  $('modalTitle').textContent = title;
+  $('modalDesc').textContent = desc;
+  $('modalInput').value = initialValue || '';
+  modalCallback = onSubmit;
+  $('modalBg').classList.add('open');
+  setTimeout(() => $('modalInput').focus(), 50);
+}
+function hideModal() {
+  $('modalBg').classList.remove('open');
+  modalCallback = null;
+}
+$('modalOk').addEventListener('click', () => {
+  const v = $('modalInput').value.trim();
+  const cb = modalCallback;
+  hideModal();
+  if (cb) cb(v);
+});
+$('modalCancel').addEventListener('click', hideModal);
+$('modalBg').addEventListener('click', (e) => { if (e.target === $('modalBg')) hideModal(); });
+$('modalInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') $('modalOk').click();
+  if (e.key === 'Escape') hideModal();
+});
+
+// =========================================================================
+// SELECTION BAR WIRE-UP
+// =========================================================================
+$('selAll').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    selected = new Set(results.map((_, i) => i));
+  } else {
+    selected.clear();
+  }
+  renderResults();
+});
+$('selAllHead').addEventListener('change', (e) => {
+  $('selAll').checked = e.target.checked;
+  $('selAll').dispatchEvent(new Event('change'));
+});
+
+$('delBtn').addEventListener('click', () => {
+  if (!selected.size) return;
+  if (!confirm(`Delete ${selected.size} row${selected.size===1?'':'s'} from the current results? This won't affect saved lists.`)) return;
+  results = results.filter((_, i) => !selected.has(i));
+  selected.clear();
+  renderResults();
+});
+
+// Save-to-list dropdown
+$('saveBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!selected.size) {
+    logLine('--', 'warn', 'No rows selected. Tick the checkboxes first.');
+    return;
+  }
+  buildSaveMenu();
+  $('saveMenu').classList.toggle('open');
+});
+
+function buildSaveMenu() {
+  const menu = $('saveMenu');
+  const listItems = lists.length ? lists.map(L =>
+    `<button class="menu-item" data-list-id="${L.id}">
+      <span>${escapeHtml(L.name)}</span>
+      <span class="badge">${L.places.length}</span>
+    </button>`
+  ).join('') : `<div style="padding:10px 12px;color:var(--mid);font-size:12px;font-family:var(--body);font-style:italic">No lists yet.</div>`;
+
+  menu.innerHTML = `
+    ${lists.length ? '<div class="menu-label">Add to existing</div>' : ''}
+    ${listItems}
+    <button class="menu-item new" id="menuNew">+ create new list</button>
+  `;
+
+  menu.querySelectorAll('[data-list-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.listId;
+      const indices = Array.from(selected);
+      const added = addToList(id, indices);
+      const L = lists.find(x => x.id === id);
+      logLine('--', 'ok', `Added ${added} of ${indices.length} to "${L.name}"${added < indices.length ? ' (rest already in list)' : ''}.`);
+      $('saveMenu').classList.remove('open');
+    });
+  });
+
+  $('menuNew').addEventListener('click', () => {
+    $('saveMenu').classList.remove('open');
+    showModal('Save selection to new list', `Name the list (will contain ${selected.size} place${selected.size===1?'':'s'}):`, '', (name) => {
+      if (!name) return;
+      const newList = { id: uid(), name, places: [], createdAt: new Date().toISOString() };
+      lists.push(newList);
+      const indices = Array.from(selected);
+      addToList(newList.id, indices);
+      logLine('--', 'ok', `Created "${name}" with ${indices.length} place${indices.length===1?'':'s'}.`);
+    });
+  });
+}
+
+// "New list" button (in the Lists section, creates an empty list)
+$('newListBtn').addEventListener('click', () => {
+  showModal('New list', 'Name the list (it will start empty):', '', (name) => {
+    if (!name) return;
+    const newList = { id: uid(), name, places: [], createdAt: new Date().toISOString() };
+    lists.push(newList);
+    saveLists();
+    logLine('--', 'ok', `Created empty list "${name}".`);
+  });
+});
+
+// Close menu on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#saveMenu') && !e.target.closest('#saveBtn')) {
+    $('saveMenu').classList.remove('open');
+  }
+});
+
 // initial render
 renderResults();
+renderLists();
 </script>
 </body>
 </html>
